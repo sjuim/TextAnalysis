@@ -1,0 +1,13 @@
+Word MM-YYYY Count
+"data science" 01-2024 6
+"data science" 02-2024 6
+"machine learning" 01-2024 6
+"machine learning" 02-2024 6
+"deep learning" 01-2024 6
+"deep learning" 02-2024 6
+"artificial intelligence" 01-2024 6
+"artificial intelligence" 02-2024 6
+"applied statstics" 01-2024 1
+"applied statstics" 02-2024 0
+"regression" 01-2024 6
+"regression" 02-2024 6

@@ -1,0 +1,232 @@
+---
+title: "freq_counts.Rmd"
+author: "Shreya Majumdar"
+date: "2024-12-22"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidytext)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+```
+
+# List of Keywords
+
+```{r}
+keywords = c('data science', 'machine learning', 'deep learning', 'artificial intelligence', 'applied statistics', 'regression')
+```
+
+# Process a text from .txt file example
+
+```{r}
+#read data from text file
+
+data2 <-scan("/Users/shreya/Documents/Cornell/Year 3 Semester 1/NLP Research/TextAnalysis/text_data_2024/now-24-02/text-24-02/24-02-in.txt", character(), sep = "\n")
+# break up by paragraph
+
+length(data2)
+```
+
+```{r}
+
+```
+
+```{r}
+# tibble the data
+text_data <- tibble(
+  id = 1:length(data2),
+  text = data2
+)
+print(text_data)
+```
+
+```{r}
+nasa_keyword <- tibble(id = text_data, keyword = keywords) %>%
+                      unnest(keyword)
+nasa_keyword
+```
+
+```{r}
+#tokenize
+tokens <- text_data %>%
+  unnest_tokens(word, text)
+print(tokens)
+```
+
+```{r}
+#remove stop words
+data("stop_words")
+clean_tokens <- tokens %>%
+  anti_join(stop_words, by = "word")
+
+# View the cleaned tokens
+print(clean_tokens)
+```
+
+```{r}
+#word frequency
+word_freq <- clean_tokens %>%
+  count(word, sort = TRUE)
+
+# View word frequency
+print(word_freq)
+```
+
+```{r}
+# turn frequency list into indexable search list
+my_dataframe <- as.data.frame(word_freq)
+#rownames(my_dataframe) <- my_dataframe$word
+#my_dataframe$word <- NULL
+print(my_dataframe)
+```
+
+```{r}
+#frequency of india
+my_dataframe[my_dataframe$word == 'regression', 'n']
+```
+
+```{r}
+nasa_keyword %>% 
+  group_by(keyword) %>% 
+  count(sort = TRUE)
+```
+
+# Attempt 2 with Quanteda
+
+```{r}
+#packages
+library(quanteda)
+library(readtext)
+require(quanteda.textstats)
+```
+
+```{r}
+path_data <- "text_data_2024/"
+path_data
+```
+
+```{r}
+string <- paste0(path_data, "now-24-01/text-24-01/*.txt")
+string
+```
+
+```{r}
+#both dir paths
+path_now_2024_01 = readtext(paste0(path_data, "now-24-01/text-24-01/*.txt"), docvarsfrom = "filenames")
+path_now_2024_02 = readtext(paste0(path_data, "now-24-02/text-24-02/*"), docvarsfrom = "filenames")
+```
+
+```{r}
+str(path_now_2024_01)
+```
+
+```{r}
+#construct corpus 1/24
+corp_2024_01 <- corpus(path_now_2024_01, docvars = data.frame(party = names(path_now_2024_01)))
+print(corp_2024_01)
+```
+
+```{r}
+#construct corpus 2/24
+corp_2024_02 <- corpus(path_now_2024_02, docvars = data.frame(party = names(path_now_2024_02)))
+print(corp_2024_02)
+```
+
+```{r}
+head(docvars(corp_2024_02))
+```
+
+```{r}
+#construct tokens objects
+toks_2024_01 <- tokens(corp_2024_01, remove_punct = TRUE)
+toks_2024_02 <- tokens(corp_2024_02, remove_punct = TRUE)
+```
+
+```{r}
+print(toks_2024_02)
+```
+
+```{r}
+#find keywords
+kw_01_data_science <- kwic(toks_2024_01, pattern = phrase("data science*"), window = 2)
+head(kw_01_data_science)
+```
+
+```{r}
+kw_02_data_science <- kwic(toks_2024_02, pattern = phrase("data science*"), window = 2)
+head(kw_02_data_science)
+```
+
+```{r}
+kw_01_machine_learning <- kwic(toks_2024_01, pattern = phrase("machine learning*"), window = 2)
+head(kw_01_machine_learning)
+```
+
+```{r}
+kw_02_machine_learning <- kwic(toks_2024_02, pattern = phrase("machine learning*"), window = 2)
+head(kw_02_machine_learning)
+```
+
+```{r}
+kw_01_deep_learning <- kwic(toks_2024_01, pattern = phrase("deep learning*"), window = 2)
+head(kw_01_deep_learning)
+```
+
+```{r}
+kw_02_deep_learning <- kwic(toks_2024_02, pattern = phrase("deep learning*"), window = 2)
+head(kw_02_deep_learning)
+```
+
+```{r}
+kw_01_artificial_intelligence <- kwic(toks_2024_01, pattern = phrase("artificial intelligence*"), window = 2)
+head(kw_01_artificial_intelligence)
+```
+
+```{r}
+kw_02_artificial_intelligence <- kwic(toks_2024_02, pattern = phrase("artificial intelligence*"), window = 2)
+head(kw_02_artificial_intelligence)
+```
+
+```{r}
+kw_01_applied_statistics <- kwic(toks_2024_01, pattern = phrase("applied statistics*"), window = 2)
+head(kw_01_applied_statistics)
+```
+
+```{r}
+kw_02_applied_statistics <- kwic(toks_2024_02, pattern = phrase("applied statistics*"), window = 2)
+head(kw_02_applied_statistics)
+```
+
+```{r}
+kw_01_regression <- kwic(toks_2024_01, pattern = phrase("regression*"), window = 1)
+head(kw_01_regression)
+```
+
+```{r}
+kw_02_regression <- kwic(toks_2024_02, pattern = phrase("regression*"), window = 1)
+head(kw_02_regression)
+```
+
+# Plots
+
+```{r}
+df_plot <- data.frame(Jan = c(6, 6, 6, 6, 1, 6),
+                 Feb = c(6, 6, 6, 6, 0, 6))
+rownames(df_plot) <- keywords
+df_plot
+```
+
+```{r}
+install.packages("gridExtra")
+```
+
+```{r}
+library(gridExtra)
+my_table <- tableGrob(df_plot)
+grid.arrange(my_table)
+```
